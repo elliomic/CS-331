@@ -1,4 +1,6 @@
+#!/usr/bin/python
 import sys
+from collections import deque
 
 class Bank:
 	def __init__(self, num_chickens, num_wolves, has_boat):
@@ -25,6 +27,12 @@ class State:
 
 	def compare(self, other_state):
 		return self.left_bank.num_chickens == other_state.left_bank.num_chickens and self.left_bank.num_wolves == other_state.left_bank.num_wolves and self.left_bank.has_boat == other_state.left_bank.has_boat and self.right_bank.num_chickens == other_state.right_bank.num_chickens and self.right_bank.num_wolves == other_state.right_bank.num_wolves and self.right_bank.has_boat == other_state.right_bank.has_boat
+
+
+class Node:
+	def __init__(self, state, parent):
+		self.state = state
+		self.parent = parent
 
 
 def read_state_file(filename):
@@ -84,8 +92,30 @@ def generate_successors(current_state):
 	return successors
 
 
+def solution(node):
+	path = deque()
+	while node != None:
+		path.appendleft(node.state)
+		node = node.parent
+	return path
+
+
 def breadth_first_search(initial_state, goal_state):
-	pass
+	node = Node(initial_state, None)
+	if initial_state.compare(goal_state):
+		return solution(node)
+	frontier = [node]
+	explored = set()
+	while frontier:
+		node = frontier.pop(0)
+		explored.add(node.state)
+		for s in generate_successors(node.state):
+			child = Node(s, node)
+			if child.state not in explored and child.state not in frontier:
+				if child.state.compare(goal_state):
+					return solution(child)
+				frontier.append(child)
+	return None
 
 
 def depth_first_search(initial_state, goal_state):
@@ -100,21 +130,30 @@ def a_star_search(initial_state, goal_state):
 	pass
 
 
-"""< initial state file > < goal state file > < mode > < output file >"""
+"""<initial state file> <goal state file> <mode> <output file>"""
 def main():
 	mode = sys.argv[3]
 	initial_state = read_state_file(sys.argv[1])
 	goal_state = read_state_file(sys.argv[2])
 
 	if mode == "bfs":
-		breadth_first_search(initial_state, goal_state)
+		solution_path = breadth_first_search(initial_state, goal_state)
 	elif mode == "dfs":
-		depth_first_search(initial_state, goal_state)
+		solution_path = depth_first_search(initial_state, goal_state)
 	elif mode == "iddfs":
-		iterative_deepening_depth_first_search(initial_state, goal_state)
+		solution_path = iterative_deepening_depth_first_search(initial_state, goal_state)
 	elif mode == "astar":
-		a_star_search(initial_state, goal_state)
+		solution_path = a_star_search(initial_state, goal_state)
+	else:
+		print "Invalid mode: " + mode
+		return
 
+	if len(sys.argv) > 4:
+		output = open(sys.argv[4], "w")
+	else:
+		output = sys.stdout
+	for state in solution_path:
+		output.write(str(state) + "\n")
 
 if __name__ == "__main__":
 	main()
