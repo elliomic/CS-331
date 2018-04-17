@@ -1,24 +1,28 @@
 import sys
 
 class Bank:
-	def __init__(self, chickens, wolves, boat):
-		self.chickens = num_chickens
-		self.wolves = num_wolves
-		self.boat = has_boat
+	def __init__(self, num_chickens, num_wolves, has_boat):
+		self.num_chickens = num_chickens
+		self.num_wolves = num_wolves
+		self.has_boat = has_boat
 
 
 class State:
-	def __init__(self, left, right):
-		self.left_bank = left
-		self.right_bank = right
+	def __init__(self, left_bank, right_bank):
+		self.left_bank = left_bank
+		self.right_bank = right_bank
+
+	def __str__(self):
+		return "%s, %s, %s\n%s, %s, %s\n" % (self.left_bank.num_chickens,
+											 self.left_bank.num_wolves,
+											 1 if self.left_bank.has_boat else 0,
+											 self.right_bank.num_chickens,
+											 self.right_bank.num_wolves,
+											 1 if self.right_bank.has_boat else 0)
 
 	def is_valid(self):
-		if  self.left_bank.num_chickens  >= 0
-		and self.left_bank.num_wolves    >= 0
-		and self.left_bank.num_chickens  >= self.left_bank.num_wolves
-		and self.right_bank.num_chickens >= 0
-		and self.right_bank.num_wolves   >= 0
-		and self.right_bank.num_chickens >= self.right_bank.num_wolves:
+		return True
+		if self.left_bank.num_chickens >= 0 and self.left_bank.num_wolves >= 0 and self.left_bank.num_chickens >= self.left_bank.num_wolves and self.right_bank.num_chickens >= 0 and self.right_bank.num_wolves >= 0 and self.right_bank.num_chickens >= self.right_bank.num_wolves:
 			return True
 		else:
 			return False
@@ -57,52 +61,62 @@ def generate_successors(current_state):
 		# Put one chicken in the boat
 		s = new_successor(current_state, bank = "left", chickens = 1, wolves = 0)
 		if s.is_valid():
+			print "Put one chicken in the boat"
 			successors.append(s)
 
 		# Put two chickens in the boat
 		s = new_successor(current_state, bank = "left", chickens = 2, wolves = 0)
 		if s.is_valid():
+			print "Put two chickens in the boat"
 			successors.append(s)
 
 		# Put one wolf in the boat
 		s = new_successor(current_state, bank = "left", chickens = 0, wolves = 1)
 		if s.is_valid():
+			print "Put one wolf in the boat"
 			successors.append(s)
 
 		# Put one wolf and one chicken in the boat
 		s = new_successor(current_state, bank = "left", chickens = 1, wolves = 1)
 		if s.is_valid():
+			print "Put one wolf and one chicken in the boat"
 			successors.append(s)
 
 		# Put two wolves in the boat
 		s = new_successor(current_state, bank = "left", chickens = 0, wolves = 2)
 		if s.is_valid():
+			print "Put two wolves in the boat"
 			successors.append(s)
 
 	elif current_state.right_bank.has_boat:
 		# Put one chicken in the boat
 		s = new_successor(current_state, bank = "right", chickens = 1, wolves = 0)
 		if s.is_valid():
+			print "Put one chicken in the boat"
 			successors.append(s)
 
 		# Put two chickens in the boat
 		s = new_successor(current_state, bank = "right", chickens = 2, wolves = 0)
 		if s.is_valid():
+			print "Put two chickens in the boat"
 			successors.append(s)
 
 		# Put one wolf in the boat
 		s = new_successor(current_state, bank = "right", chickens = 0, wolves = 1)
 		if s.is_valid():
+			print "Put one wolf in the boat"
 			successors.append(s)
 
 		# Put one wolf and one chicken in the boat
 		s = new_successor(current_state, bank = "right", chickens = 1, wolves = 1)
 		if s.is_valid():
+			print "Put one wolf and one chicken in the boat"
 			successors.append(s)
 
 		# Put two wolves in the boat
 		s = new_successor(current_state, bank = "right", chickens = 0, wolves = 2)
 		if s.is_valid():
+			print "Put two wolves in the boat"
 			successors.append(s)
 
 	return successors
