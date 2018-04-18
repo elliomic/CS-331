@@ -104,26 +104,49 @@ def breadth_first_search(initial_state, goal_state):
 	node = Node(initial_state, None)
 	if initial_state.compare(goal_state):
 		return solution(node)
-	frontier = [node]
+	frontier = deque()
+	frontier.append(node)
 	explored = set()
 	while frontier:
-		node = frontier.pop(0)
+		node = frontier.popleft()
 		explored.add(node.state)
-		for s in generate_successors(node.state):
-			child = Node(s, node)
+		for successor in generate_successors(node.state):
+			child = Node(successor, node)
 			if child.state not in explored and child.state not in frontier:
 				if child.state.compare(goal_state):
 					return solution(child)
 				frontier.append(child)
-	return None
+	return solution(None)
 
 
 def depth_first_search(initial_state, goal_state):
 	pass
 
 
+def recursive_dls(node, goal_state, limit):
+	if node.state.compare(goal_state):
+		return solution(node)
+	elif limit == 0:
+		return solution(None)
+	else:
+		for successor in generate_successors(node.state):
+			child = Node(successor, node)
+			result = recursive_dls(child, goal_state, limit - 1)
+			if result:
+				return result
+		return solution(None)
+
+
+def depth_limited_search(initial_state, goal_state, limit):
+	return recursive_dls(Node(initial_state, None), goal_state, limit);
+
+
 def iterative_deepening_depth_first_search(initial_state, goal_state):
-	pass
+	for depth in xrange(0, 200):
+		result = depth_limited_search(initial_state, goal_state, depth)
+		if result:
+			return result
+	return solution(None)
 
 
 def a_star_search(initial_state, goal_state):
