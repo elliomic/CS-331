@@ -109,10 +109,10 @@ def breadth_first_search(initial_state, goal_state):
 	explored = set()
 	while frontier:
 		node = frontier.popleft()
-		explored.add(node.state)
+		explored.add(str(node.state))
 		for successor in generate_successors(node.state):
 			child = Node(successor, node)
-			if child.state not in explored and child.state not in frontier:
+			if str(child.state) not in explored and str(child.state) not in map(lambda n: str(n.state), frontier):
 				if child.state.compare(goal_state):
 					return solution(child)
 				frontier.append(child)
@@ -142,7 +142,7 @@ def depth_limited_search(initial_state, goal_state, limit):
 
 
 def iterative_deepening_depth_first_search(initial_state, goal_state):
-	for depth in xrange(0, 200):
+	for depth in xrange(0, 999):
 		result = depth_limited_search(initial_state, goal_state, depth)
 		if result:
 			return result
