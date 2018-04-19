@@ -1,4 +1,8 @@
 #!/usr/bin/python
+"""
+CS 331 Assignment #1: Uninformed and Informed Search
+Anish Asrani, Michael Elliott
+"""
 import sys, time
 import heapq as hq
 from collections import deque
