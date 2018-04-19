@@ -1,5 +1,6 @@
 #!/usr/bin/python
-import sys
+import sys, time
+import heapq as hq
 from collections import deque
 
 class Bank:
@@ -27,7 +28,6 @@ class State:
 
 	def compare(self, other_state):
 		return self.left_bank.num_chickens == other_state.left_bank.num_chickens and self.left_bank.num_wolves == other_state.left_bank.num_wolves and self.left_bank.has_boat == other_state.left_bank.has_boat and self.right_bank.num_chickens == other_state.right_bank.num_chickens and self.right_bank.num_wolves == other_state.right_bank.num_wolves and self.right_bank.has_boat == other_state.right_bank.has_boat
-
 
 class Node:
 	def __init__(self, state, parent):
@@ -120,7 +120,22 @@ def breadth_first_search(initial_state, goal_state):
 
 
 def depth_first_search(initial_state, goal_state):
-	pass
+	node = Node(initial_state, None)
+	if initial_state.compare(goal_state):
+		return solution(node)
+	frontier = deque()
+	frontier.append(node)
+	explored = set()
+	while frontier:
+		node = frontier.pop()
+		explored.add(str(node.state))
+		for successor in generate_successors(node.state):
+			child = Node(successor, node)
+			if str(child.state) not in explored and str(child.state) not in map(lambda n: str(n.state), frontier):
+				if child.state.compare(goal_state):
+					return solution(child)
+				frontier.append(child)
+	return solution(None)
 
 
 def recursive_dls(node, goal_state, limit):
@@ -148,9 +163,31 @@ def iterative_deepening_depth_first_search(initial_state, goal_state):
 			return result
 	return solution(None)
 
+def heuristic(current_state, goal_state):
+	return abs(goal_state.right_bank.num_wolves - current_state.right_bank.num_wolves) + abs(goal_state.left_bank.num_wolves - current_state.left_bank.num_wolves) + abs(goal_state.right_bank.num_chickens - current_state.right_bank.num_chickens) + abs(goal_state.left_bank.num_chickens - current_state.left_bank.num_chickens) + (goal_state.right_bank.has_boat != current_state.right_bank.has_boat) + (goal_state.left_bank.has_boat != current_state.left_bank.has_boat)  
+
 
 def a_star_search(initial_state, goal_state):
-	pass
+	node = Node(initial_state, None)
+	if initial_state.compare(goal_state):
+		return solution(node)
+
+	node_length = 0
+	not_explored = []
+	hq.heappush(not_explored, (node_length + heuristic(node.state, goal_state), node))
+	explored = set()
+
+	while not_explored:
+		node = hq.heappop(not_explored)[1]
+		explored.add(str(node.state))
+		for successor in generate_successors(node.state):
+			child = Node(successor, node)
+			if str(child.state) not in explored and str(child.state) not in [str(x[1].state) for x in not_explored]:#map(lambda n: str(n.state), zip(*not_explored)[1]):
+				if child.state.compare(goal_state):
+					return solution(child)
+				hq.heappush(not_explored, (node_length + heuristic(child.state, goal_state), child))
+	return solution(None)
+
 
 
 """<initial state file> <goal state file> <mode> <output file>"""
@@ -179,4 +216,6 @@ def main():
 		output.write(str(state) + "\n")
 
 if __name__ == "__main__":
+	start_time = time.time()
 	main()
+	print sys.argv[3] + " took " + str(time.time() - start_time) + " seconds"
