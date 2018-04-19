@@ -34,15 +34,18 @@ class Node:
 		self.state = state
 		self.parent = parent
 
+expanded_nodes = 0
 
 def read_state_file(filename):
-	state_file = map(lambda l: l.split(","), open(filename, "r").read().split("\n"))
-	return State(left_bank = Bank(num_chickens = int(state_file[0][0]),
-								  num_wolves = int(state_file[0][1]),
-								  has_boat = state_file[0][2] == "1"),
-				 right_bank = Bank(num_chickens = int(state_file[1][0]),
-								   num_wolves = int(state_file[1][1]),
-								   has_boat = state_file[1][2] == "1"))
+	state_file = open(filename, "r")
+	state_file_contents = map(lambda l: l.split(","), state_file.read().split("\n"))
+	state_file.close()
+	return State(left_bank = Bank(num_chickens = int(state_file_contents[0][0]),
+								  num_wolves = int(state_file_contents[0][1]),
+								  has_boat = state_file_contents[0][2] == "1"),
+				 right_bank = Bank(num_chickens = int(state_file_contents[1][0]),
+								   num_wolves = int(state_file_contents[1][1]),
+								   has_boat = state_file_contents[1][2] == "1"))
 
 
 def new_successor(current_state, chickens, wolves):
@@ -101,6 +104,7 @@ def solution(node):
 
 
 def breadth_first_search(initial_state, goal_state):
+	global expanded_nodes
 	node = Node(initial_state, None)
 	if initial_state.compare(goal_state):
 		return solution(node)
@@ -110,6 +114,7 @@ def breadth_first_search(initial_state, goal_state):
 	while frontier:
 		node = frontier.popleft()
 		explored.add(str(node.state))
+		expanded_nodes += 1
 		for successor in generate_successors(node.state):
 			child = Node(successor, node)
 			if str(child.state) not in explored and str(child.state) not in map(lambda n: str(n.state), frontier):
@@ -119,41 +124,31 @@ def breadth_first_search(initial_state, goal_state):
 	return solution(None)
 
 
-def depth_first_search(initial_state, goal_state):
-	node = Node(initial_state, None)
-	if initial_state.compare(goal_state):
-		return solution(node)
-	frontier = deque()
-	frontier.append(node)
-	explored = set()
-	while frontier:
-		node = frontier.pop()
-		explored.add(str(node.state))
-		for successor in generate_successors(node.state):
-			child = Node(successor, node)
-			if str(child.state) not in explored and str(child.state) not in map(lambda n: str(n.state), frontier):
-				if child.state.compare(goal_state):
-					return solution(child)
-				frontier.append(child)
-	return solution(None)
-
-
-def recursive_dls(node, goal_state, limit):
+def recursive_dls(node, goal_state, explored, limit):
+	global expanded_nodes
 	if node.state.compare(goal_state):
 		return solution(node)
 	elif limit == 0:
 		return solution(None)
 	else:
+		explored.add(str(node.state))
+		expanded_nodes += 1
 		for successor in generate_successors(node.state):
 			child = Node(successor, node)
-			result = recursive_dls(child, goal_state, limit - 1)
-			if result:
-				return result
+			if str(child.state) not in explored:
+				result = recursive_dls(child, goal_state, explored, limit - 1)
+				if result:
+					return result
 		return solution(None)
 
 
 def depth_limited_search(initial_state, goal_state, limit):
-	return recursive_dls(Node(initial_state, None), goal_state, limit);
+	explored = set()
+	return recursive_dls(Node(initial_state, None), goal_state, explored, limit)
+
+
+def depth_first_search(initial_state, goal_state):
+	return depth_limited_search(initial_state, goal_state, -1)
 
 
 def iterative_deepening_depth_first_search(initial_state, goal_state):
@@ -192,6 +187,7 @@ def a_star_search(initial_state, goal_state):
 
 """<initial state file> <goal state file> <mode> <output file>"""
 def main():
+	global expanded_nodes
 	mode = sys.argv[3]
 	initial_state = read_state_file(sys.argv[1])
 	goal_state = read_state_file(sys.argv[2])
@@ -208,12 +204,14 @@ def main():
 		print "Invalid mode: " + mode
 		return
 
-	if len(sys.argv) > 4:
-		output = open(sys.argv[4], "w")
-	else:
-		output = sys.stdout
+	output = open(sys.argv[4], "w")
 	for state in solution_path:
 		output.write(str(state) + "\n")
+		sys.stdout.write(str(state) + "\n")
+	output.close()
+
+	print "Expanded nodes:\t\t", expanded_nodes
+	print "Solution length:\t", len(solution_path)
 
 if __name__ == "__main__":
 	start_time = time.time()
