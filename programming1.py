@@ -33,12 +33,15 @@ class State:
 	def compare(self, other_state):
 		return self.left_bank.num_chickens == other_state.left_bank.num_chickens and self.left_bank.num_wolves == other_state.left_bank.num_wolves and self.left_bank.has_boat == other_state.left_bank.has_boat and self.right_bank.num_chickens == other_state.right_bank.num_chickens and self.right_bank.num_wolves == other_state.right_bank.num_wolves and self.right_bank.has_boat == other_state.right_bank.has_boat
 
+
 class Node:
 	def __init__(self, state, parent):
 		self.state = state
 		self.parent = parent
 
+
 expanded_nodes = 0
+
 
 def read_state_file(filename):
 	state_file = open(filename, "r")
@@ -162,8 +165,9 @@ def iterative_deepening_depth_first_search(initial_state, goal_state):
 			return result
 	return solution(None)
 
+
 def heuristic(current_state, goal_state):
-	return abs(goal_state.right_bank.num_wolves - current_state.right_bank.num_wolves) + abs(goal_state.left_bank.num_wolves - current_state.left_bank.num_wolves) + abs(goal_state.right_bank.num_chickens - current_state.right_bank.num_chickens) + abs(goal_state.left_bank.num_chickens - current_state.left_bank.num_chickens) + (goal_state.right_bank.has_boat != current_state.right_bank.has_boat) + (goal_state.left_bank.has_boat != current_state.left_bank.has_boat) 
+	return abs(goal_state.right_bank.num_wolves - current_state.right_bank.num_wolves) + abs(goal_state.left_bank.num_wolves - current_state.left_bank.num_wolves) + abs(goal_state.right_bank.num_chickens - current_state.right_bank.num_chickens) + abs(goal_state.left_bank.num_chickens - current_state.left_bank.num_chickens) + (goal_state.right_bank.has_boat != current_state.right_bank.has_boat) + (goal_state.left_bank.has_boat != current_state.left_bank.has_boat)
 
 
 def a_star_search(initial_state, goal_state):
@@ -189,8 +193,6 @@ def a_star_search(initial_state, goal_state):
 	return solution(None)
 
 
-
-"""<initial state file> <goal state file> <mode> <output file>"""
 def main():
 	global expanded_nodes
 	mode = sys.argv[3]
@@ -219,6 +221,9 @@ def main():
 	print "Solution length:\t", len(solution_path)
 
 if __name__ == "__main__":
+	if len(sys.argv) != 5:
+		print "Usage: " + sys.argv[0] + " <initial state file> <goal state file> <mode> <output file>"
+		exit()
 	start_time = time.time()
 	main() 
 	print sys.argv[3] + " took " + str(time.time() - start_time) + " seconds"
