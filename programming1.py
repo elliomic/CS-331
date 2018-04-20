@@ -152,17 +152,18 @@ def depth_first_search(initial_state, goal_state):
 
 
 def iterative_deepening_depth_first_search(initial_state, goal_state):
-	for depth in xrange(0, 999):
+	for depth in xrange(0, 400):
 		result = depth_limited_search(initial_state, goal_state, depth)
 		if result:
 			return result
 	return solution(None)
 
 def heuristic(current_state, goal_state):
-	return abs(goal_state.right_bank.num_wolves - current_state.right_bank.num_wolves) + abs(goal_state.left_bank.num_wolves - current_state.left_bank.num_wolves) + abs(goal_state.right_bank.num_chickens - current_state.right_bank.num_chickens) + abs(goal_state.left_bank.num_chickens - current_state.left_bank.num_chickens) + (goal_state.right_bank.has_boat != current_state.right_bank.has_boat) + (goal_state.left_bank.has_boat != current_state.left_bank.has_boat)  
+	return abs(goal_state.right_bank.num_wolves - current_state.right_bank.num_wolves) + abs(goal_state.left_bank.num_wolves - current_state.left_bank.num_wolves) + abs(goal_state.right_bank.num_chickens - current_state.right_bank.num_chickens) + abs(goal_state.left_bank.num_chickens - current_state.left_bank.num_chickens) + (goal_state.right_bank.has_boat != current_state.right_bank.has_boat) + (goal_state.left_bank.has_boat != current_state.left_bank.has_boat) 
 
 
 def a_star_search(initial_state, goal_state):
+	global expanded_nodes
 	node = Node(initial_state, None)
 	if initial_state.compare(goal_state):
 		return solution(node)
@@ -175,12 +176,14 @@ def a_star_search(initial_state, goal_state):
 	while not_explored:
 		node = hq.heappop(not_explored)[1]
 		explored.add(str(node.state))
+		expanded_nodes += 1 
 		for successor in generate_successors(node.state):
 			child = Node(successor, node)
 			if str(child.state) not in explored and str(child.state) not in [str(x[1].state) for x in not_explored]:#map(lambda n: str(n.state), zip(*not_explored)[1]):
 				if child.state.compare(goal_state):
 					return solution(child)
-				hq.heappush(not_explored, (node_length + heuristic(child.state, goal_state), child))
+				hq.heappush(not_explored, (heuristic(child.state, goal_state), child))
+#				print heuristic(child.state, goal_state)
 	return solution(None)
 
 
@@ -215,5 +218,5 @@ def main():
 
 if __name__ == "__main__":
 	start_time = time.time()
-	main()
+	main() 
 	print sys.argv[3] + " took " + str(time.time() - start_time) + " seconds"
