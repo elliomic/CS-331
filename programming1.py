@@ -159,7 +159,7 @@ def depth_first_search(initial_state, goal_state):
 
 
 def iterative_deepening_depth_first_search(initial_state, goal_state):
-	for depth in xrange(0, 400):
+	for depth in xrange(0, 999):
 		result = depth_limited_search(initial_state, goal_state, depth)
 		if result:
 			return result
