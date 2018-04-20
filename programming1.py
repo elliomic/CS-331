@@ -172,9 +172,8 @@ def a_star_search(initial_state, goal_state):
 	if initial_state.compare(goal_state):
 		return solution(node)
 
-	node_length = 0
 	not_explored = []
-	hq.heappush(not_explored, (node_length + heuristic(node.state, goal_state), node))
+	hq.heappush(not_explored, (heuristic(node.state, goal_state), node))
 	explored = set()
 
 	while not_explored:
@@ -183,11 +182,10 @@ def a_star_search(initial_state, goal_state):
 		expanded_nodes += 1 
 		for successor in generate_successors(node.state):
 			child = Node(successor, node)
-			if str(child.state) not in explored and str(child.state) not in [str(x[1].state) for x in not_explored]:#map(lambda n: str(n.state), zip(*not_explored)[1]):
+			if str(child.state) not in explored and str(child.state) not in [str(x[1].state) for x in not_explored]:
 				if child.state.compare(goal_state):
 					return solution(child)
 				hq.heappush(not_explored, (heuristic(child.state, goal_state), child))
-#				print heuristic(child.state, goal_state)
 	return solution(None)
 
 
