@@ -10,13 +10,12 @@ def file_len(fname):
     with open(fname, "r") as f:
 		return sum(1 for line in f)
 
-
-def main(): 
+def classify_data(infile, outfile):
 	vocab = dict()
 	classlabel = []
 	
-	num_lines = file_len(sys.argv[1])
-	with open(sys.argv[1], "r") as input_file:
+	num_lines = file_len(infile)
+	with open(infile, "r") as input_file:
 		current_line = 0
 		for line in input_file:
 			line = line.split()
@@ -37,11 +36,15 @@ def main():
 	df = pd.DataFrame(vocab)
 	df['classlabel'] = classlabel
 	pd.set_option('display.max_rows', None)
-	df.to_csv('values.csv', sep=',', encoding='utf-8')
-	
-	with open("results.txt", "w") as output_file:
-		for k, v in sorted(vocab.items()):
-			output_file.write(k + " " + str(v).strip("[]") + "\n")
+	df.to_csv(outfile, sep='\t', encoding='utf-8')
+
+def main(): 
+	classify_data(sys.argv[1], 'preprocessed_train.txt')
+	classify_data(sys.argv[2], 'preprocessed_test.txt')
+
+#	with open("results.txt", "w") as output_file:
+#		for k, v in sorted(vocab.items()):
+#			output_file.write(k + " " + str(v).strip("[]") + "\n")
 
 
 if __name__ == "__main__":
