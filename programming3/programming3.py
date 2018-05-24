@@ -5,36 +5,37 @@ Anish Asrani, Michael Elliott
 """
 import sys, string
 
-
-def vocabOrderBy(vocabEntry):
-	key, (pos, neg) = vocabEntry
-	return pos+neg
+def file_len(fname):
+    with open(fname, "r") as f:
+		return sum(1 for line in f)
 
 
 def main():
 	vocab = dict()
+	classlabel = []
 	
+	num_lines = file_len(sys.argv[1])
 	with open(sys.argv[1], "r") as input_file:
+		current_line = 0
 		for line in input_file:
 			line = line.split()
-			sentiment = line[-1] == "1"
+			classlabel.append(line[-1])
+
 			for word in line[:-1]:
 				word = word.lower().translate(None, string.punctuation+string.digits)
 				if word == "":
 					continue
 
-				if word not in vocab:
-					vocab[word] = (0, 0)
-
-				pos, neg = vocab[word]
-				if sentiment:
-					vocab[word] = (pos+1, neg)
-				else:
-					vocab[word] = (pos, neg+1)
+				try:
+					vocab[word][current_line] = 1
+				except:
+					vocab[word] = [0 for i in xrange(num_lines)]
+					vocab[word][current_line] = 1
+			current_line += 1
 				
 	with open(sys.argv[2], "w") as output_file:
-		for k, v in sorted(vocab.items(), reverse=True, key=vocabOrderBy):
-			output_file.write(k + " " + str(v) + "\n")
+		for k, v in sorted(vocab.items()):
+			output_file.write(k + " " + str(v).strip("[]") + "\n")
 
 
 if __name__ == "__main__":
