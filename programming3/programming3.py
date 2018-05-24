@@ -12,6 +12,7 @@ def file_len(fname):
 
 
 def main(): 
+	vocab = dict()
 	classlabel = []
 	
 	num_lines = file_len(sys.argv[1])
@@ -34,7 +35,8 @@ def main():
 			current_line += 1
 
 	df = pd.DataFrame(vocab)
-	pd.set_option('display.max_rows', len(df))
+	df['classlabel'] = classlabel
+	pd.set_option('display.max_rows', None)
 	df.to_csv('values.csv', sep=',', encoding='utf-8')
 	
 	with open("results.txt", "w") as output_file:
