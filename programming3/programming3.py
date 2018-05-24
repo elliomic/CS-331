@@ -4,6 +4,7 @@ CS 331 Assignment #3: Sentiment Analysis
 Anish Asrani, Michael Elliott
 """
 import sys, string
+import pandas as pd
 
 def file_len(fname):
     with open(fname, "r") as f:
@@ -32,7 +33,11 @@ def main():
 					vocab[word] = [0 for i in xrange(num_lines)]
 					vocab[word][current_line] = 1
 			current_line += 1
-				
+
+	df = pd.DataFrame(vocab)
+	pd.set_option('display.max_rows', len(df))
+	df.to_csv('values.csv', sep=',', encoding='utf-8')
+	
 	with open(sys.argv[2], "w") as output_file:
 		for k, v in sorted(vocab.items()):
 			output_file.write(k + " " + str(v).strip("[]") + "\n")
