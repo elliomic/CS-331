@@ -11,8 +11,7 @@ def file_len(fname):
 		return sum(1 for line in f)
 
 
-def main():
-	vocab = dict()
+def main(): 
 	classlabel = []
 	
 	num_lines = file_len(sys.argv[1])
@@ -38,13 +37,13 @@ def main():
 	pd.set_option('display.max_rows', len(df))
 	df.to_csv('values.csv', sep=',', encoding='utf-8')
 	
-	with open(sys.argv[2], "w") as output_file:
+	with open("results.txt", "w") as output_file:
 		for k, v in sorted(vocab.items()):
 			output_file.write(k + " " + str(v).strip("[]") + "\n")
 
 
 if __name__ == "__main__":
 	if len(sys.argv) != 3:
-		print "Usage: " + sys.argv[0] + " <input file> <output file>"
+		print "Usage: " + sys.argv[0] + " <training file> <test file>"
 		exit()
 	main()
