@@ -14,6 +14,7 @@ def classify_data(infile, outfile):
 	vocab = dict()
 	train = collections.defaultdict(list)
 	classlabel = []
+	res_label = []
 
 	num_lines = file_len(infile)
 	with open(infile, "r") as input_file:
@@ -49,16 +50,26 @@ def classify_data(infile, outfile):
 					neg_count += 1
 		train[key].append((pos_count, neg_count))
 
-	for i in range(0, len(classlabel)):
+	for i in range(0, len(classlabel)-1):
 		pos_sum = 0.0
 		neg_sum = 0.0
-		print ("at sentence " + str(i))
 		for key in vocab:
 			if(vocab[key][i] == 1):
 				pos_sum += train[key][0][0]
 				neg_sum += train[key][0][1]
-				print("positive sum == " + str(pos_sum))
-				print("negative sum == " + str(neg_sum))
+
+		if(pos_sum/(pos_sum+neg_sum) > neg_sum/(pos_sum+neg_sum)):
+			res_label.append('1')
+		else:
+			res_label.append('0')
+
+	count = 0
+	for i in range(0, len(res_label)-1):
+		if(res_label[i] == classlabel[i]):
+			count += 1
+		
+	print("correct == " + str(count) + " out of === " + str(len(res_label)-1))
+
 
 def main(): 
 	classify_data(sys.argv[1], 'preprocessed_train.txt')
