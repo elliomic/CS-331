@@ -3,10 +3,8 @@
 CS 331 Assignment #3: Sentiment Analysis
 Anish Asrani, Michael Elliott
 """
-import sys, string
-import pprint
+import sys, string, pprint, collections
 import itertools as it
-import collections
 
 def file_len(fname):
     with open(fname, "r") as f:
@@ -56,10 +54,6 @@ def classify_data(infile, outfile):
 def main(): 
 	classify_data(sys.argv[1], 'preprocessed_train.txt')
 #	classify_data(sys.argv[2], 'preprocessed_test.txt')
-
-#	with open("results.txt", "w") as output_file:
-#		for k, v in sorted(vocab.items()):
-#			output_file.write(k + " " + str(v).strip("[]") + "\n")
 
 
 if __name__ == "__main__":
