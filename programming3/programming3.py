@@ -4,7 +4,8 @@ CS 331 Assignment #3: Sentiment Analysis
 Anish Asrani, Michael Elliott
 """
 import sys, string
-import pandas as pd
+#import pandas as pd
+import itertools as it
 
 def file_len(fname):
     with open(fname, "r") as f:
@@ -33,10 +34,15 @@ def classify_data(infile, outfile):
 					vocab[word][current_line] = 1
 			current_line += 1
 
-	df = pd.DataFrame(vocab)
-	df['classlabel'] = classlabel
-	pd.set_option('display.max_rows', None)
-	df.to_csv(outfile, sep='\t', encoding='utf-8')
+	matrix = zip(*[value if isinstance(value, list) else it.repeat(value) for key, value in vocab.items()])
+	with open(outfile, "w") as output_file:
+		output_file.write(''.join(['{:5}'.format(key) for key in vocab.keys()]))
+		for row in matrix:
+			output_file.write(''.join(['{:5}'.format(str(item)) for item in row]))
+#	df = pd.DataFrame(vocab)
+#	df['classlabel'] = classlabel
+#	pd.set_option('display.max_rows', None)
+#	df.to_csv(outfile, sep='\t', encoding='utf-8')
 
 def main(): 
 	classify_data(sys.argv[1], 'preprocessed_train.txt')
