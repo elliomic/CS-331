@@ -10,11 +10,10 @@ def file_len(fname):
     with open(fname, "r") as f:
 		return sum(1 for line in f)
 
-def classify_data(infile, outfile):
-	vocab = dict()
-	train = collections.defaultdict(list)
+
+def preprocess(infile, outfile):
+	feature_table = dict()
 	classlabel = []
-	res_label = []
 
 	num_lines = file_len(infile)
 	with open(infile, "r") as input_file:
@@ -22,6 +21,7 @@ def classify_data(infile, outfile):
 		for line in input_file:
 			line = line.split()
 			classlabel.append(line[-1])
+			sentiment = line[-1] == "1"
 
 			for word in line[:-1]:
 				word = word.lower().translate(None, string.punctuation+string.digits)
@@ -29,34 +29,46 @@ def classify_data(infile, outfile):
 					continue
 
 				try:
-					vocab[word][current_line] = 1
+					feature_table[word][current_line] = 1
 				except:
-					vocab[word] = [0 for i in xrange(num_lines)]
-					vocab[word][current_line] = 1
+					feature_table[word] = [0 for i in xrange(num_lines)]
+					feature_table[word][current_line] = 1
+
 			current_line += 1
 
 	current_file = open(outfile, 'w')
 	pp = pprint.PrettyPrinter(indent = 4, stream = current_file)
-	pp.pprint(vocab)
+	pp.pprint(feature_table)
 
-	for key in vocab:
-		neg_count = 0
-		pos_count = 0
-		for i in range(0, len(classlabel)-1):
-			if vocab[key][i] == 1: 
-				if classlabel[i] == '1':
-					pos_count += 1
-				elif classlabel[i] == '0':
-					neg_count += 1
-		train[key].append((pos_count, neg_count))
+	return feature_table, classlabel
 
-	for i in range(0, len(classlabel)-1):
+
+def classify(training_set, classlabel, test_set, testlabel):
+	vocab = dict()
+	res_label = []
+
+	for key in training_set:
+		pos, neg = (0, 0)
+		for i in xrange(0, len(classlabel)):
+			if training_set[key][i] == 1:
+				sentiment = classlabel[i] == '1'
+
+				if sentiment:
+					pos += 1
+				else:
+					neg += 1
+		vocab[key] = (pos, neg)
+
+	for i in xrange(0, len(testlabel)):
 		pos_sum = 0.0
 		neg_sum = 0.0
-		for key in vocab:
-			if(vocab[key][i] == 1):
-				pos_sum += train[key][0][0]
-				neg_sum += train[key][0][1]
+		for key in test_set:
+			if(test_set[key][i] == 1):
+				try:
+					pos_sum += vocab[key][0]
+					neg_sum += vocab[key][1]
+				except:
+					pass
 
 		if(pos_sum/(pos_sum+neg_sum) > neg_sum/(pos_sum+neg_sum)):
 			res_label.append('1')
@@ -64,16 +76,25 @@ def classify_data(infile, outfile):
 			res_label.append('0')
 
 	count = 0
-	for i in range(0, len(res_label)-1):
-		if(res_label[i] == classlabel[i]):
+	for i in range(0, len(res_label)):
+		if(res_label[i] == testlabel[i]):
 			count += 1
 		
-	print("correct == " + str(count) + " out of === " + str(len(res_label)-1))
+	return str(count) + " correct out of " + str(len(res_label)) + "\t\t" + str(round(count*100.0/len(res_label), 1)) + "% correct"
 
 
 def main(): 
-	classify_data(sys.argv[1], 'preprocessed_train.txt')
-	classify_data(sys.argv[2], 'preprocessed_test.txt')
+	training_set, training_classifications = preprocess(sys.argv[1], 'preprocessed_train.txt')
+	test_set, test_classifications = preprocess(sys.argv[2], 'preprocessed_test.txt')
+	training_result = sys.argv[1] + ":\t" + classify(training_set, training_classifications, training_set, training_classifications)
+	test_result = sys.argv[2] + ":\t\t" + classify(training_set, training_classifications, test_set, test_classifications)
+
+	print training_result
+	print test_result
+
+	with open("results.txt", 'w') as result_file:
+		result_file.write(training_result + '\n')
+		result_file.write(test_result + '\n')
 
 
 if __name__ == "__main__":
