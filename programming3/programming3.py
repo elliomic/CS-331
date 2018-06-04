@@ -60,23 +60,24 @@ def classify(training_set, classlabel, test_set, testlabel):
 					total_neg += 1
 		vocab[key] = (pos, neg)
 	total_prob = total_pos/(total_pos+total_neg)
-	print("total prob = " + str(total_pos/(total_pos+total_neg)))
+	
 	for i in xrange(0, len(testlabel)):
-		pos_sum = 0.0
-		neg_sum = 0.0
-		prob = total_prob
+		pos_prob = total_prob
+		neg_prob = 1 - total_prob
 		for key in test_set:
+			pos_sum = 0.0
+			neg_sum = 0.0
 			if(test_set[key][i] == 1):
 				try:
 					pos_sum += vocab[key][0]
 					neg_sum += vocab[key][1]
+
+					pos_prob *= pos_sum/(pos_sum + neg_sum) 
+					neg_prob *= neg_sum/(pos_sum + neg_sum)
 				except:
 					pass
 
-		prob *= pos_sum/(pos_sum + neg_sum) 
-
-		#if(pos_sum/(pos_sum+neg_sum) > neg_sum/(pos_sum+neg_sum)):
-		if(prob > (1 - prob)):
+		if(pos_prob > neg_prob):
 			res_label.append('1')
 		else:
 			res_label.append('0')
