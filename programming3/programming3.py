@@ -41,19 +41,28 @@ def classify_data(infile, outfile):
 	for key in vocab:
 		neg_count = 0
 		pos_count = 0
-		for i in range(0, len(classlabel)):
+		for i in range(0, len(classlabel)-1):
 			if vocab[key][i] == 1: 
 				if classlabel[i] == '1':
 					pos_count += 1
 				elif classlabel[i] == '0':
 					neg_count += 1
 		train[key].append((pos_count, neg_count))
-	print(train)
 
+	for i in range(0, len(classlabel)):
+		pos_sum = 0.0
+		neg_sum = 0.0
+		print ("at sentence " + str(i))
+		for key in vocab:
+			if(vocab[key][i] == 1):
+				pos_sum += train[key][0][0]
+				neg_sum += train[key][0][1]
+				print("positive sum == " + str(pos_sum))
+				print("negative sum == " + str(neg_sum))
 
 def main(): 
 	classify_data(sys.argv[1], 'preprocessed_train.txt')
-#	classify_data(sys.argv[2], 'preprocessed_test.txt')
+	classify_data(sys.argv[2], 'preprocessed_test.txt')
 
 
 if __name__ == "__main__":
