@@ -46,22 +46,25 @@ def preprocess(infile, outfile):
 def classify(training_set, classlabel, test_set, testlabel):
 	vocab = dict()
 	res_label = []
-
+	total_pos, total_neg = (0.0, 0.0)
 	for key in training_set:
 		pos, neg = (0, 0)
 		for i in xrange(0, len(classlabel)):
 			if training_set[key][i] == 1:
 				sentiment = classlabel[i] == '1'
-
 				if sentiment:
 					pos += 1
+					total_pos += 1
 				else:
 					neg += 1
+					total_neg += 1
 		vocab[key] = (pos, neg)
-
+	total_prob = total_pos/(total_pos+total_neg)
+	print("total prob = " + str(total_pos/(total_pos+total_neg)))
 	for i in xrange(0, len(testlabel)):
 		pos_sum = 0.0
 		neg_sum = 0.0
+		prob = total_prob
 		for key in test_set:
 			if(test_set[key][i] == 1):
 				try:
@@ -70,7 +73,10 @@ def classify(training_set, classlabel, test_set, testlabel):
 				except:
 					pass
 
-		if(pos_sum/(pos_sum+neg_sum) > neg_sum/(pos_sum+neg_sum)):
+		prob *= pos_sum/(pos_sum + neg_sum) 
+
+		#if(pos_sum/(pos_sum+neg_sum) > neg_sum/(pos_sum+neg_sum)):
+		if(prob > (1 - prob)):
 			res_label.append('1')
 		else:
 			res_label.append('0')
